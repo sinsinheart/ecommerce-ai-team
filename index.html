@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>店小二 — 电商全链路运营 AI 数字团队</title>
+<style>
+  :root {
+    --primary: #f97316; --primary-light: #fff7ed; --primary-dark: #ea580c;
+    --accent: #8b5cf6; --accent-light: #f5f3ff;
+    --blue: #3b82f6; --blue-light: #eff6ff;
+    --green: #10b981; --green-light: #ecfdf5;
+    --red: #ef4444; --red-light: #fef2f2;
+    --bg: #fafaf9; --card: #ffffff; --text: #1c1917; --text-secondary: #78716c; --border: #e7e5e4;
+    --radius: 16px; --radius-sm: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06); --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 64px 0; }
+  section.alt { background: #fff; }
+  .section-label { display: inline-block; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 6px; }
+  .section-header { text-align: center; margin-bottom: 48px; }
+  .section-header h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+  .section-header p { color: var(--text-secondary); font-size: 16px; max-width: 600px; margin: 0 auto; }
+
+  .hero { background: linear-gradient(135deg,#fff7ed 0%,#fef3c7 50%,#fef9c3 100%); padding: 80px 24px 64px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content:''; position:absolute; top:-60px; right:-80px; width:360px; height:360px; background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%); border-radius:50%; }
+  .hero-badge { display:inline-block; background:#fff; color:var(--primary-dark); font-size:14px; font-weight:600; padding:6px 18px; border-radius:20px; margin-bottom:24px; border:1px solid #fed7aa; position:relative; z-index:1; }
+  .hero h1 { font-size:clamp(28px,5vw,48px); font-weight:800; line-height:1.25; max-width:720px; margin:0 auto 16px; position:relative; z-index:1; }
+  .hero h1 span { color:var(--primary); }
+  .hero-sub { font-size:18px; color:var(--text-secondary); max-width:640px; margin:0 auto 32px; position:relative; z-index:1; }
+  .hero-stats { display:flex; justify-content:center; gap:32px; flex-wrap:wrap; position:relative; z-index:1; }
+  .hero-stat { text-align:center; }
+  .hero-stat .num { font-size:36px; font-weight:800; color:var(--primary-dark); }
+  .hero-stat .lbl { font-size:13px; color:var(--text-secondary); }
+
+  .pain-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+  .pain-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:24px; box-shadow:var(--shadow); }
+  .pain-card .pain-emoji { font-size:36px; margin-bottom:8px; }
+  .pain-card h3 { font-size:16px; font-weight:700; margin-bottom:4px; }
+  .pain-card .pain-desc { font-size:13px; color:var(--text-secondary); }
+  .pain-card .pain-cost { display:inline-block; margin-top:8px; font-size:12px; font-weight:700; color:#dc2626; background:var(--red-light); padding:3px 10px; border-radius:8px; }
+
+  .agent-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(380px,1fr)); gap:20px; }
+  .agent-card { background:var(--card); border:2px solid var(--border); border-radius:var(--radius); padding:28px; box-shadow:var(--shadow); display:grid; grid-template-columns:60px 1fr; gap:16px; align-items:start; }
+  .agent-avatar { width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+  .agent-avatar.dir { background:var(--primary-light); border:2px solid var(--primary); }
+  .agent-avatar.op { background:var(--blue-light); border:2px solid var(--blue); }
+  .agent-avatar.spec { background:var(--accent-light); border:2px solid var(--accent); }
+  .agent-info h3 { font-size:18px; font-weight:700; margin-bottom:2px; }
+  .agent-info .agent-title { font-size:12px; color:var(--accent); font-weight:600; margin-bottom:8px; }
+  .agent-info .solves { font-size:13px; color:var(--text-secondary); margin-bottom:8px; line-height:1.6; }
+  .agent-info .solves strong { color:var(--primary-dark); }
+  .agent-caps { display:flex; flex-wrap:wrap; gap:6px; }
+  .agent-caps span { font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px; background:var(--primary-light); color:var(--primary-dark); }
+
+  table { width:100%; border-collapse:separate; border-spacing:0; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
+  th { background:#fafaf9; padding:12px 16px; text-align:left; font-size:13px; font-weight:700; color:var(--text-secondary); border-bottom:2px solid var(--border); }
+  td { padding:12px 16px; font-size:14px; border-bottom:1px solid var(--border); background:#fff; }
+  tr:last-child td { border-bottom:none; }
+
+  .tag-pain { background:var(--red-light); color:#dc2626; font-size:12px; font-weight:600; padding:3px 8px; border-radius:6px; }
+
+  .comp-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; }
+  .comp-card { background:var(--card); border:2px solid var(--border); border-radius:var(--radius); padding:28px; box-shadow:var(--shadow); }
+  .comp-card.bad { border-color:#fecaca; }
+  .comp-card.good { border-color:#bbf7d0; background:#fafef9; }
+  .comp-card h3 { font-size:20px; font-weight:800; margin-bottom:4px; }
+  .comp-card .comp-sub { font-size:12px; color:var(--text-secondary); margin-bottom:16px; }
+  .comp-card ul { list-style:none; }
+  .comp-card li { font-size:14px; padding:5px 0 5px 22px; position:relative; }
+  .comp-card.bad li::before { content:'✗'; position:absolute; left:0; color:#dc2626; font-weight:700; }
+  .comp-card.good li::before { content:'✓'; position:absolute; left:0; color:#10b981; font-weight:700; }
+
+  .adv-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+  .adv-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:24px; box-shadow:var(--shadow); }
+  .adv-card .adv-emoji { font-size:28px; margin-bottom:8px; }
+  .adv-card h3 { font-size:16px; font-weight:700; margin-bottom:4px; }
+  .adv-card p { font-size:13px; color:var(--text-secondary); }
+
+  .arch-box { background:#fff; border:2px solid var(--border); border-radius:var(--radius); padding:32px 20px; text-align:center; overflow-x:auto; }
+  .arch-row { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin:8px 0; }
+  .arch-node { display:inline-block; border:2px solid; border-radius:10px; padding:10px 18px; margin:3px; font-size:13px; font-weight:600; white-space:nowrap; }
+  .arch-node.user { border-color:#a78bfa; background:var(--accent-light); }
+  .arch-node.orch { border-color:#f97316; background:var(--primary-light); }
+  .arch-node.skill { border-color:#3b82f6; background:var(--blue-light); }
+  .arch-node.agg { border-color:#8b5cf6; background:var(--accent-light); }
+  .arch-arrow { color:var(--text-secondary); font-size:18px; margin:2px 0; }
+
+  .badge-time { display:inline-block; font-size:12px; font-weight:700; padding:3px 10px; border-radius:10px; }
+  .time-morning { background:#fef3c7; color:#92400e; } .time-noon { background:#fed7aa; color:#9a3412; } .time-evening { background:#e0e7ff; color:#3730a3; } .time-weekly { background:#d1fae5; color:#065f46; }
+
+  .tech-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+  .tech-item { background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); padding:20px; text-align:center; box-shadow:var(--shadow); }
+  .tech-num { font-size:30px; font-weight:800; color:var(--primary); }
+  .tech-label { font-size:12px; color:var(--text-secondary); margin-top:4px; }
+
+  .code-block { background:#1e293b; color:#e2e8f0; padding:14px 16px; border-radius:var(--radius-sm); font-family:"SF Mono","Fira Code",monospace; font-size:13px; line-height:1.6; overflow-x:auto; }
+
+  .cta-section { text-align:center; padding:64px 24px; background:linear-gradient(135deg,#fff7ed,#fef3c7); border-radius:var(--radius); margin:64px 0; }
+  .cta-section h2 { font-size:28px; font-weight:800; margin-bottom:12px; }
+  .cta-section p { font-size:16px; color:var(--text-secondary); max-width:520px; margin:0 auto 24px; }
+  .cta-btn { display:inline-block; background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; font-size:16px; font-weight:700; padding:14px 40px; border-radius:30px; text-decoration:none; box-shadow:0 4px 14px rgba(249,115,22,.35); }
+  .summary-box { background:#fff; border:2px solid #fed7aa; border-radius:var(--radius); padding:32px; text-align:center; max-width:700px; margin:48px auto 0; }
+  .summary-box p { font-size:17px; color:var(--text); font-weight:600; }
+
+  /* ── Demo Terminal ── */
+  .demo-wrapper { max-width:760px; margin:0 auto; background:#1e1e2e; border-radius:var(--radius); overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.18); border:1px solid #313244; }
+  .demo-header { background:#181825; padding:12px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #313244; }
+  .demo-dot { width:10px; height:10px; border-radius:50%; }
+  .demo-dot.r { background:#f38ba8; } .demo-dot.y { background:#f9e2af; } .demo-dot.g { background:#a6e3a1; }
+  .demo-title { color:#a6adc8; font-size:12px; margin-left:8px; }
+  .demo-body { padding:16px 20px; min-height:320px; max-height:500px; overflow-y:auto; font-family:"SF Mono","Fira Code","Consolas",monospace; font-size:13px; line-height:1.8; }
+  .demo-body::-webkit-scrollbar { width:6px; } .demo-body::-webkit-scrollbar-thumb { background:#45475a; border-radius:3px; }
+  .demo-line { margin:4px 0; }
+  .demo-line .agent-tag { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; margin-right:6px; vertical-align:middle; }
+  .demo-line.user { color:#cdd6f4; }
+  .demo-line.user::before { content:'▸ '; color:#f5c2e7; }
+  .demo-line.system { color:#a6adc8; font-style:italic; }
+  .demo-line .at-dir { background:#f97316; color:#fff; } .demo-line .at-select { background:#f59e0b; color:#000; }
+  .demo-line .at-review { background:#8b5cf6; color:#fff; } .demo-line .at-data { background:#3b82f6; color:#fff; }
+  .demo-line .at-cross { background:#10b981; color:#fff; } .demo-line .at-cs { background:#06b6d4; color:#fff; }
+  .demo-line .at-opt { background:#84cc16; color:#000; } .demo-line .at-aftersale { background:#f43f5e; color:#fff; }
+  .demo-line .highlight { color:#f9e2af; font-weight:600; }
+  .demo-line .warn { color:#f38ba8; }
+  .demo-input-row { display:flex; border-top:1px solid #313244; background:#181825; padding:8px 16px; gap:8px; flex-wrap:wrap; }
+  .demo-btn { font-size:11px; font-weight:600; padding:6px 14px; border-radius:16px; border:none; cursor:pointer; transition:all .15s; font-family:inherit; white-space:nowrap; }
+  .demo-btn:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,.3); }
+  .demo-btn.primary { background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; }
+  .demo-btn.accent { background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; }
+  .demo-btn.green { background:linear-gradient(135deg,#10b981,#059669); color:#fff; }
+  .demo-btn.blue { background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; }
+  .demo-btn.slate { background:#45475a; color:#cdd6f4; }
+  .demo-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+  .demo-table { width:100%; border-collapse:collapse; margin:8px 0; font-size:12px; }
+  .demo-table th { background:#313244; color:#cdd6f4; padding:6px 10px; text-align:left; font-size:11px; border:none; }
+  .demo-table td { background:#1e1e2e; color:#bac2de; padding:5px 10px; border-bottom:1px solid #313244; }
+  .demo-table td.good { color:#a6e3a1; } .demo-table td.bad { color:#f38ba8; }
+  .bar { display:inline-block; height:10px; border-radius:3px; vertical-align:middle; margin-right:6px; }
+  .bar.orange { background:linear-gradient(90deg,#f97316,#f59e0b); }
+  .bar.purple { background:linear-gradient(90deg,#8b5cf6,#a78bfa); }
+  .bar.blue { background:linear-gradient(90deg,#3b82f6,#60a5fa); }
+  .bar.green { background:linear-gradient(90deg,#10b981,#34d399); }
+
+  /* ── Download Section ── */
+  .dl-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+  .dl-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px 20px; display:flex; align-items:center; gap:14px; transition:all .2s; }
+  .dl-card:hover { border-color:#fed7aa; box-shadow:0 2px 12px rgba(249,115,22,.12); }
+  .dl-emoji { font-size:28px; flex-shrink:0; width:42px; text-align:center; }
+  .dl-info { flex:1; min-width:0; }
+  .dl-info .dl-name { font-size:14px; font-weight:700; }
+  .dl-info .dl-desc { font-size:11px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dl-btn { flex-shrink:0; display:inline-block; font-size:11px; font-weight:700; padding:6px 14px; border-radius:14px; text-decoration:none; transition:all .15s; cursor:pointer; border:none; font-family:inherit; }
+  .dl-btn.orange { background:var(--primary-light); color:var(--primary-dark); border:1px solid #fed7aa; }
+  .dl-btn.orange:hover { background:var(--primary); color:#fff; }
+  .dl-all { background:linear-gradient(135deg,#fff7ed,#fef3c7); border:2px solid #fbbf24; border-radius:var(--radius); padding:20px 24px; display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+  .dl-all .dl-emoji { font-size:36px; }
+  .dl-all .dl-name { font-size:18px; font-weight:800; }
+  .dl-all .dl-desc { font-size:13px; color:var(--text-secondary); }
+  .dl-all .dl-btn { font-size:14px; padding:10px 24px; border-radius:20px; background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; border:none; }
+
+  @media(max-width:640px){ .hero{padding:48px 16px 40px} .hero h1{font-size:26px} section{padding:40px 0} .section-header h2{font-size:26px} .agent-card{grid-template-columns:1fr; text-align:center} .agent-avatar{margin:0 auto} }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-badge">🛍️ 店小二 · EasyClaw AI 数字团队</div>
+  <h1><span>店小二</span><br>8 位 AI 员工组成的电商运营团队</h1>
+  <p class="hero-sub">拼多多 · 淘宝 · 抖音 | 选品→上架→接待→优化→复盘→售后→口碑 | 7×24 全自动</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">8</div><div class="lbl">AI 员工</div></div>
+    <div class="hero-stat"><div class="num">3</div><div class="lbl">电商平台</div></div>
+    <div class="hero-stat"><div class="num">7×24</div><div class="lbl">全天候运转</div></div>
+    <div class="hero-stat"><div class="num">零代码</div><div class="lbl">自然语言驱动</div></div>
+  </div>
+</header>
+
+<!-- ═══════ PAIN POINTS ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">行业背景</div>
+      <h2>中小电商商家的六座大山</h2>
+      <p>人手不足、工具碎片化、运营靠感觉——这不是某一家的问题，而是整个行业的困局</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card"><div class="pain-emoji">👤</div><h3>人手严重不足</h3><p class="pain-desc">一个人干选品、客服、发货、售后，24 小时都不够用</p><span class="pain-cost">雇 1 人年成本 > 10 万</span></div>
+      <div class="pain-card"><div class="pain-emoji">🧩</div><h3>工具碎片化</h3><p class="pain-desc">千牛/飞鸽/生意参谋/多多情报通来回切换，数据不通</p><span class="pain-cost">3 套工具年费 > 5000</span></div>
+      <div class="pain-card"><div class="pain-emoji">📉</div><h3>差评来了才知道疼</h3><p class="pain-desc">手动翻评价，追评容易漏。知道差评多但不知道根因，更不知道怎么改</p><span class="pain-cost">1 条差评 ≈ 损失 30 单</span></div>
+      <div class="pain-card"><div class="pain-emoji">🎲</div><h3>选品全靠赌</h3><p class="pain-desc">凭直觉、跟风同行，滞销率高达 60%，不知道什么品在哪个平台好卖</p><span class="pain-cost">选错 1 款 = 压货 > 5000</span></div>
+      <div class="pain-card"><div class="pain-emoji">📊</div><h3>数据复盘靠 Excel</h3><p class="pain-desc">手动导出做表，不会分析或没时间看，运营全凭感觉</p><span class="pain-cost">每周耗 3 小时+</span></div>
+      <div class="pain-card"><div class="pain-emoji">🔧</div><h3>售后处理耗心力</h3><p class="pain-desc">退款审核、恶意订单识别、物流追踪——琐碎重复还容易出错赔钱</p><span class="pain-cost">每单处理 ≈ 15 分钟</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ THE TEAM ═══════ -->
+<section class="alt">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">我们的方案</div>
+      <h2>8 位 AI 员工，各司其职</h2>
+      <p>不是一套工具，而是一支完整的 AI 运营团队。每位成员有明确的岗位职责，精准解决一个核心痛点</p>
+    </div>
+    <div class="agent-grid">
+      <div class="agent-card">
+        <div class="agent-avatar dir">🎯</div>
+        <div class="agent-info">
+          <h3>运营总监</h3><div class="agent-title">总调度 Agent</div>
+          <div class="solves"><strong>应对：多平台多任务无从下手</strong><br>商家只需说人话，总监自动识别意图，精准分配任务给对应 AI 员工，协调多人协作完成复杂流程。</div>
+          <div class="agent-caps"><span>意图识别</span><span>任务分配</span><span>流程编排</span><span>定时调度</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-avatar op">🔥</div>
+        <div class="agent-info">
+          <h3>选品专员</h3><div class="agent-title">爆款预测 Agent</div>
+          <div class="solves"><strong>应对：选品靠赌，滞销率高</strong><br>全网扫描热点，六维模型量化评分（热度/销量/讨论/竞争/空白/季节），跨平台告诉你同一商品在哪卖最划算。</div>
+          <div class="agent-caps"><span>全网热点</span><span>六维评分</span><span>跨平台策略</span><span>追踪复盘</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-avatar op">🎧</div>
+        <div class="agent-info">
+          <h3>客服主管</h3><div class="agent-title">智能客服 Agent</div>
+          <div class="solves"><strong>应对：人手不足，夜间无人值守</strong><br>三平台 7×24 自动接待，秒级应答。主动识别差评风险信号，在买家打差评前拦截安抚，从源头降低差评率。</div>
+          <div class="agent-caps"><span>自动应答</span><span>差评拦截</span><span>多平台统一</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-avatar op">📦</div>
+        <div class="agent-info">
+          <h3>商品运营</h3><div class="agent-title">商品优化 Agent</div>
+          <div class="solves"><strong>应对：上新慢、标题差、怕违规</strong><br>自动抓取竞品数据，AI 生成高转化标题和详情。100+ 违禁词库自动检测，低流量商品诊断并输出优化方案。</div>
+          <div class="agent-caps"><span>竞品分析</span><span>AI 改写</span><span>违禁词检测</span><span>流量诊断</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-avatar op">📊</div>
+        <div class="agent-info">
+          <h3>数据分析师</h3><div class="agent-title">数据复盘 Agent</div>
+          <div class="solves"><strong>应对：数据复盘靠 Excel，不会分析</strong><br>每日自动生成三平台可视化日报周报。异常自动诊断，直接输出优先级排序的优化建议，不再需要手动做表。</div>
+          <div class="agent-caps"><span>自动日报</span><span>异常诊断</span><span>跨平台对比</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-avatar op">🔧</div>
+        <div class="agent-info">
+          <h3>售后专员</h3><div class="agent-title">售后处理 Agent</div>
+          <div class="solves"><strong>应对：售后琐碎耗时，恶意订单防不胜防</strong><br>规则化自动审核退款退货。5 大恶意订单检测模型，自动拦截风险订单，降低资损。</div>
+          <div class="agent-caps"><span>自动审核</span><span>恶意识别</span><span>物流追踪</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-avatar spec">🛡️</div>
+        <div class="agent-info">
+          <h3>口碑经理</h3><div class="agent-title">差评运维 Agent</div>
+          <div class="solves"><strong>应对：差评管控滞后，不知根因 ⭐</strong><br>三平台 7×24 全量轮询。AI 八类归因（尺码/质量/色差/物流/客服/发货/包装/不符），输出商品/服务/供应链三维优化方案。</div>
+          <div class="agent-caps"><span>全量抓取</span><span>八类归因</span><span>三维优化</span><span>自动预警</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-avatar spec">🌐</div>
+        <div class="agent-info">
+          <h3>跨平台分析师</h3><div class="agent-title">数据聚合 Agent</div>
+          <div class="solves"><strong>应对：多平台数据割裂，切换低效 ⭐</strong><br>三平台统一看板一键切换。跨平台选品对比——同款商品各平台价格/竞争/利润一目了然，精准推荐最优上架策略。</div>
+          <div class="agent-caps"><span>统一看板</span><span>平台切换</span><span>选品对比</span><span>异常聚合</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ MAPPING ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">痛点击破</div>
+      <h2>每个痛点都有专门的 AI 员工负责</h2>
+    </div>
+    <table style="table-layout:fixed"><thead><tr><th style="width:140px">痛点</th><th style="width:180px">负责 Agent</th><th>如何解决</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag-pain">人手不足</span></td><td>🎧 客服主管 + 🔧 售后专员</td><td>7×24 自动接待 + 批量自动审核，彻底释放人工</td></tr>
+      <tr><td><span class="tag-pain">工具碎片化</span></td><td>🎯 运营总监 + 🌐 跨平台分析师</td><td>一个入口调度全部功能，三平台统一看板</td></tr>
+      <tr><td><span class="tag-pain">差评管控滞后</span></td><td>🛡️ 口碑经理</td><td>全量轮询 → 八类归因 → 三维优化 → 自动预警</td></tr>
+      <tr><td><span class="tag-pain">选品靠赌</span></td><td>🔥 选品专员 + 🌐 跨平台分析师</td><td>六维评分 + 跨平台对比 → 精准推荐最优平台</td></tr>
+      <tr><td><span class="tag-pain">数据靠 Excel</span></td><td>📊 数据分析师</td><td>每日自动日报 + AI 异常诊断 + 优先级建议</td></tr>
+      <tr><td><span class="tag-pain">上新怕违规</span></td><td>📦 商品运营</td><td>AI 生成内容 + 100+ 违禁词自动检测 + 竞品参照</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ═══════ COMPARISON ═══════ -->
+<section class="alt">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">市场对比</div>
+      <h2>市面产品 VS 我们</h2>
+      <p>不是比谁的插件多，而是比谁真正帮商家解决了问题</p>
+    </div>
+    <div class="comp-cards">
+      <div class="comp-card bad">
+        <h3>传统电商工具</h3>
+        <div class="comp-sub">客服机器人 / ERP / 选品插件 / 评价管理……</div>
+        <ul>
+          <li>功能零散各管一摊，数据互相不通</li>
+          <li>每一套都要独立学习操作</li>
+          <li>通常只支持单一平台</li>
+          <li>差评只能看列表，不会分析根因</li>
+          <li>选品靠人工翻数据，没有预测能力</li>
+          <li>自动化程度低，仍需大量人工</li>
+          <li>多套工具叠加年费 3000-8000+</li>
+        </ul>
+      </div>
+      <div class="comp-card good">
+        <h3>店小二 · AI 数字团队</h3>
+        <div class="comp-sub">8 位 AI 员工 · 3 平台 · 全链路一体化</div>
+        <ul>
+          <li>选品→上架→接待→优化→复盘→售后→口碑，全搞定</li>
+          <li>自然语言对话，零学习成本</li>
+          <li>拼多多 + 淘宝 + 抖音，一个团队管三平台</li>
+          <li>AI 八类归因 + 三维优化方案，知道根因也知道怎么改</li>
+          <li>六维模型预测 + 跨平台选品策略推荐</li>
+          <li>7×24 全自动，定时 + 事件驱动</li>
+          <li>一个 EasyClaw 实例，无额外年费</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ ADVANCEMENTS ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">关键进步</div>
+      <h2>相比市面产品的核心突破</h2>
+    </div>
+    <div class="adv-grid">
+      <div class="adv-card"><div class="adv-emoji">🔬</div><h3>"看到差评" → "根治差评"</h3><p>传统工具只能列出差评列表。我们实现八类 AI 归因 + 商品/服务/供应链三维优化，形成发现→归因→改→复查的完整闭环。这是质的区别。</p></div>
+      <div class="adv-card"><div class="adv-emoji">🧠</div><h3>"凭经验选品" → "数据驱动预测"</h3><p>从人工翻榜单到六维量化模型评分预测，且跨平台告诉你同一商品在哪卖最划算——从经验主义到数据科学的跨越。</p></div>
+      <div class="adv-card"><div class="adv-emoji">🔄</div><h3>"多工具切换" → "一个团队协作"</h3><p>不再千牛切飞鸽、生意参谋切情报通。一个对话入口，8 位 AI 员工后台自动协作，数据天然互通。</p></div>
+      <div class="adv-card"><div class="adv-emoji">🗣️</div><h3>"学操作" → "说人话"</h3><p>不需要学习任何软件后台。"差评情况""这个品在抖音好卖吗"——说人话，AI 听懂、分配、执行、反馈。</p></div>
+      <div class="adv-card"><div class="adv-emoji">🌐</div><h3>"单平台孤岛" → "跨平台协同"</h3><p>传统工具绑定单一平台。我们三平台统一数据接口，统一看板一键切换，跨平台策略对比——全局最优。</p></div>
+      <div class="adv-card"><div class="adv-emoji">⏰</div><h3>"人工检查" → "AI 主动推送"</h3><p>7 项定时任务已部署：7:00 爆款、8:00 日报、9:00 差评、12:00 售后、18:00 预警——商家不必记得做什么，AI 主动汇报。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ ARCH ═══════ -->
+<section class="alt">
+  <div class="container">
+    <div class="section-header"><div class="section-label">产品架构</div><h2>8 位 Agent 的组织架构</h2></div>
+    <div class="arch-box">
+      <div class="arch-node user" style="font-size:15px;padding:14px 28px;">👤 商家 — 自然语言对话</div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-node orch" style="font-size:15px;padding:14px 28px;">🎯 运营总监 · 意图理解 · 任务分配 · 流程编排</div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-row">
+        <div class="arch-node skill">🔥 选品</div><div class="arch-node skill">🎧 客服</div><div class="arch-node skill">📦 优化</div>
+        <div class="arch-node skill">📊 复盘</div><div class="arch-node skill">🔧 售后</div><div class="arch-node skill">🛡️ 口碑</div><div class="arch-node agg">🌐 跨平台</div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-row">
+        <div class="arch-node" style="border-color:#e02424;background:#fef2f2;">🔵 拼多多</div>
+        <div class="arch-node" style="border-color:#f97316;background:#fff7ed;">🟠 淘宝</div>
+        <div class="arch-node" style="border-color:#52525b;background:#f4f4f5;">⚫ 抖音</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SCHEDULE ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">自动化运营</div><h2>7×24 小时定时任务</h2><p>已部署运行，无需人工干预</p>
+    </div>
+    <table><thead><tr><th>时间</th><th>任务</th><th>负责 Agent</th><th style="width:50px">状态</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge-time time-morning">每日 07:00</span></td><td>全网热点扫描 + 三平台爆款预测</td><td>🔥 选品 + 🌐 跨平台</td><td style="font-weight:700;color:#10b981">✓</td></tr>
+      <tr><td><span class="badge-time time-morning">每日 08:00</span></td><td>跨平台店铺数据日报</td><td>📊 数据分析师</td><td style="font-weight:700;color:#10b981">✓</td></tr>
+      <tr><td><span class="badge-time time-morning">每日 09:00</span></td><td>三平台差评全量抓取 + AI 归因</td><td>🛡️ 口碑经理</td><td style="font-weight:700;color:#10b981">✓</td></tr>
+      <tr><td><span class="badge-time time-noon">每日 12:00</span></td><td>三平台售后批量自动审核</td><td>🔧 售后专员</td><td style="font-weight:700;color:#10b981">✓</td></tr>
+      <tr><td><span class="badge-time time-evening">每日 18:00</span></td><td>口碑日报 + 跨平台差评预警</td><td>🛡️ 口碑 + 🌐 跨平台</td><td style="font-weight:700;color:#10b981">✓</td></tr>
+      <tr><td><span class="badge-time time-weekly">每周一 09:30</span></td><td>运营周报 + 选品周报</td><td>📊 分析师 + 🔥 选品</td><td style="font-weight:700;color:#10b981">✓</td></tr>
+      <tr><td><span class="badge-time time-weekly">每周三 10:00</span></td><td>三平台竞品深度对比</td><td>📦 商品运营 + 🌐 跨平台</td><td style="font-weight:700;color:#10b981">✓</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ═══════ TECH ═══════ -->
+<section class="alt">
+  <div class="container">
+    <div class="section-header"><div class="section-label">技术数据</div><h2>工程化交付</h2></div>
+    <div class="tech-grid">
+      <div class="tech-item"><div class="tech-num">11</div><div class="tech-label">Skill 模块</div></div>
+      <div class="tech-item"><div class="tech-num">18</div><div class="tech-label">Python 脚本</div></div>
+      <div class="tech-item"><div class="tech-num">3</div><div class="tech-label">电商平台</div></div>
+      <div class="tech-item"><div class="tech-num">57+</div><div class="tech-label">API 封装</div></div>
+      <div class="tech-item"><div class="tech-num">6</div><div class="tech-label">业务闭环</div></div>
+      <div class="tech-item"><div class="tech-num">7</div><div class="tech-label">项定时任务</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ USAGE ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-header"><div class="section-label">使用方式</div><h2>自然语言驱动</h2><p>像管理真人团队一样管理 AI 团队</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px;">
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:12px;">🤖 自动运行</h3>
+        <p style="font-size:14px;color:var(--text-secondary);">定时任务 7×24 自动执行，结果主动推送给商家。无需任何操作。</p>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px;">
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:12px;">💬 对话触发</h3>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">说人话就能驱动 AI 团队：</p>
+        <p style="color:#8b5cf6;font-weight:600;font-size:13px;line-height:2;">
+          "展示全平台数据"<br>"切换到淘宝"<br>"分析差评并给出优化方案"<br>"防晒冰袖在哪个平台最好卖"<br>"生成日报" · "处理售后"
+        </p>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px;">
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:12px;">🔌 对接店铺</h3>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">5 分钟接入真实数据：</p>
+        <div class="code-block">python auth.py init --shop-id xx --shop-name "店铺" --app-key xxx<br>python auth.py code --shop-id xx --code 授权码</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ LIVE DEMO ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-header"><div class="section-label">🏗️ 在线体验</div><h2>点一下，看 AI 团队干活</h2><p>模拟真实对话，展示 8 位 Agent 如何协作</p></div>
+    <div class="demo-wrapper" id="demoApp">
+      <div class="demo-header"><span class="demo-dot r"></span><span class="demo-dot y"></span><span class="demo-dot g"></span><span class="demo-title">AI 运营团队 · 在线终端</span></div>
+      <div class="demo-body" id="demoBody"></div>
+      <div class="demo-input-row" id="demoButtons"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ DOWNLOAD ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-header"><div class="section-label">📥 一键安装</div><h2>下载 Skill 到你的 EasyClaw</h2><p>每个 Skill 独立打包，一键导入</p></div>
+    <div class="dl-all">
+      <div class="dl-emoji">📦</div>
+      <div class="dl-info"><div class="dl-name">全部 11 个 Skill 打包</div><div class="dl-desc">含 18 脚本 · 57+ API · 3 平台适配 · 6 大协作闭环</div></div>
+      <a class="dl-btn" href="downloads/all-skills.zip" download>⬇ 下载全部（82 KB）</a>
+    </div>
+    <div class="dl-grid">
+      <div class="dl-card"><div class="dl-emoji">🎯</div><div class="dl-info"><div class="dl-name">运营总监</div><div class="dl-desc">总调度 · 意图路由 · 协作编排</div></div><a class="dl-btn orange" href="downloads/ecommerce-ops-orchestrator.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">🔥</div><div class="dl-info"><div class="dl-name">选品专员</div><div class="dl-desc">爆款预测 · 六维评分 · 全网热点</div></div><a class="dl-btn orange" href="downloads/ecommerce-hot-product-prediction.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">🎧</div><div class="dl-info"><div class="dl-name">客服主管</div><div class="dl-desc">7×24 自动接待 · 差评拦截</div></div><a class="dl-btn orange" href="downloads/ecommerce-customer-service.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">📦</div><div class="dl-info"><div class="dl-name">商品运营</div><div class="dl-desc">AI改写 · 违禁词检测 · 竞品分析</div></div><a class="dl-btn orange" href="downloads/ecommerce-product-optimization.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">📊</div><div class="dl-info"><div class="dl-name">数据分析师</div><div class="dl-desc">日报周报 · 异常诊断 · 优化建议</div></div><a class="dl-btn orange" href="downloads/ecommerce-data-review.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">🔧</div><div class="dl-info"><div class="dl-name">售后专员</div><div class="dl-desc">自动审核 · 恶意识别 · 物流追踪</div></div><a class="dl-btn orange" href="downloads/ecommerce-after-sales.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">🛡️</div><div class="dl-info"><div class="dl-name">口碑经理</div><div class="dl-desc">八类归因 · 三维优化 · 全量抓取</div></div><a class="dl-btn orange" href="downloads/ecommerce-review-management.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">🌐</div><div class="dl-info"><div class="dl-name">跨平台分析师</div><div class="dl-desc">统一看板 · 选品对比 · 异常聚合</div></div><a class="dl-btn orange" href="downloads/ecommerce-cross-platform.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">🔵</div><div class="dl-info"><div class="dl-name">拼多多适配层</div><div class="dl-desc">6脚本 · 20+ API · OAuth认证</div></div><a class="dl-btn orange" href="downloads/ecommerce-platform-pinduoduo.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">🟠</div><div class="dl-info"><div class="dl-name">淘宝适配层</div><div class="dl-desc">5脚本 · 17+ API · 旺旺消息</div></div><a class="dl-btn orange" href="downloads/ecommerce-platform-taobao.zip" download>下载</a></div>
+      <div class="dl-card"><div class="dl-emoji">⚫</div><div class="dl-info"><div class="dl-name">抖音适配层</div><div class="dl-desc">6脚本 · 20+ API · 飞鸽 · 达人</div></div><a class="dl-btn orange" href="downloads/ecommerce-platform-douyin.zip" download>下载</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CTA ═══════ -->
+<section class="alt">
+  <div class="container">
+    <div class="cta-section">
+      <h2>店小二<br><span style="color:#ea580c">雇佣一支 AI 运营团队</span></h2>
+      <p>一个人忙不过来的时候，给自己配 8 个 AI 帮手<br>他们说人话、有分工、会协作、全天候在线</p>
+      <div class="summary-box">
+        <p>店小二 · 8 位 AI 员工 · 3 大电商平台 · 覆盖选品到口碑全链路<br>零代码 · 自然语言驱动 · 7×24 自动运转</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:32px;color:#a8a29e;font-size:13px;">
+  店小二 · 基于 EasyClaw AI Agent 运行时构建 · 11 Skill · 18 脚本 · 3 平台 · 7 项定时任务
+</footer>
+
+<script>
+(function() {
+  const body = document.getElementById('demoBody');
+  const btns = document.getElementById('demoButtons');
+  let busy = false;
+
+  const scenes = {
+    daily: {
+      label:'📊 生成日报', cls:'primary',
+      steps:[
+        {delay:300, user:'帮我生成今天的店铺运营日报'},
+        {delay:600, sys:'🎯 运营总监 → 识别意图，调度 📊 数据分析师 + 🌐 跨平台分析师'},
+        {delay:900, html:'<p style="color:#a6adc8;margin:6px 0">📊 数据分析师 采集三平台数据...</p>'},
+        {delay:1200, html:`
+<table class="demo-table"><thead><tr><th>指标</th><th>🔵拼多多</th><th>🟠淘宝</th><th>⚫抖音</th><th>趋势</th></tr></thead>
+<tbody>
+<tr><td>访客数</td><td class="good">1,847</td><td>1,203</td><td class="good">2,156</td><td>↑</td></tr>
+<tr><td>成交额</td><td class="good">¥4,837</td><td>¥3,120</td><td class="good">¥5,892</td><td>↑</td></tr>
+<tr><td>转化率</td><td>4.66%</td><td class="bad">3.12%</td><td>5.01%</td><td>→</td></tr>
+<tr><td>客单价</td><td>¥56.2</td><td>¥78.5</td><td>¥52.3</td><td>↑</td></tr>
+</tbody></table>
+        `},
+        {delay:600, html:'<span class="agent-tag at-data">📊 数据分析师</span> <span style="color:#cdd6f4">今日总结：</span><span class="highlight">抖音成交额领先</span>，<span class="warn">淘宝转化率偏低需关注</span>。建议优化淘宝商品详情页。'}
+      ]
+    },
+    review: {
+      label:'🛡️ 分析差评', cls:'accent',
+      steps:[
+        {delay:300, user:'帮我分析最近三个平台的差评情况'},
+        {delay:600, sys:'🎯 运营总监 → 调度 🛡️ 口碑经理 + 🌐 跨平台分析师'},
+        {delay:900, html:'<p style="color:#a6adc8">🛡️ 口碑经理 全量扫描三平台评价...</p>'},
+        {delay:1200, html:`
+<p style="color:#cdd6f4;margin:4px 0">📊 差评率对比：</p>
+<p style="margin:2px 0">🔵 拼多多 <span class="bar orange" style="width:32px"></span> 3.2% &nbsp;
+🟠 淘宝 <span class="bar purple" style="width:18px"></span> 1.8% &nbsp;
+⚫ 抖音 <span class="bar blue" style="width:45px"></span> 4.5% <span class="warn">⚠</span></p>
+<p style="color:#a6adc8;margin:8px 0">🤖 AI 八类归因中...</p>
+        `},
+        {delay:1000, html:`
+<p style="color:#cdd6f4;margin:4px 0">📋 <strong>八类归因分布（TOP3）：</strong></p>
+<p style="margin:2px 0"><span class="bar orange" style="width:90px"></span> 尺码问题 35%</p>
+<p style="margin:2px 0"><span class="bar purple" style="width:55px"></span> 质量质感 22%</p>
+<p style="margin:2px 0"><span class="bar blue" style="width:38px"></span> 色差问题 15%</p>
+<p style="color:#a6adc8;margin:6px 0">🔍 问题商品 TOP1：<span class="highlight">夏季冰丝防晒袖</span>（差评率 6.8%）</p>
+        `},
+        {delay:800, html:'<span class="agent-tag at-review">🛡️ 口碑经理</span> <span style="color:#cdd6f4">三维优化建议：</span><br>📦 <strong>商品端</strong> — 更新尺码表，增加实测数据<br>🎧 <strong>服务端</strong> — 详情页增加材质特写 + 色差提醒<br>🚚 <strong>供应链</strong> — 建议增加「加大码」SKU'}
+      ]
+    },
+    select: {
+      label:'🔥 扫描爆款', cls:'green',
+      steps:[
+        {delay:300, user:'防晒冰袖在哪个平台最好卖？'},
+        {delay:600, sys:'🎯 运营总监 → 调度 🔥 选品专员 + 🌐 跨平台分析师'},
+        {delay:900, html:'<p style="color:#a6adc8">🔥 选品专员 扫描全网热点... &nbsp; 🌐 跨平台分析师 对比三平台数据...</p>'},
+        {delay:1200, html:`
+<table class="demo-table"><thead><tr><th>平台</th><th>均价</th><th>竞品数</th><th>月搜索量</th><th>利润空间</th><th>推荐</th></tr></thead>
+<tbody>
+<tr><td>🔵 拼多多</td><td>¥6.9</td><td>2,847</td><td>8.2万</td><td class="bad">低</td><td>⭐⭐</td></tr>
+<tr><td>🟠 淘宝</td><td>¥19.9</td><td>1,203</td><td>5.6万</td><td class="good">中</td><td>⭐⭐⭐</td></tr>
+<tr><td>⚫ 抖音</td><td>¥29.9</td><td>412</td><td class="good">12.4万</td><td class="good">高</td><td>⭐⭐⭐⭐⭐</td></tr>
+</tbody></table>
+        `},
+        {delay:800, html:'<span class="agent-tag at-cross">🌐 跨平台分析师</span> <span class="highlight">推荐：抖音小店</span><br>理由：竞争少（仅412竞品）、搜索量最高（12.4万/月）、利润空间大。建议定价 ¥24.9-29.9，走短视频带货路线。'}
+      ]
+    },
+    optimize: {
+      label:'📦 优化商品', cls:'blue',
+      steps:[
+        {delay:300, user:'帮我优化「夏季冰丝防晒袖」的标题和文案，检查违禁词'},
+        {delay:600, sys:'🎯 运营总监 → 调度 📦 商品运营'},
+        {delay:900, html:'<span class="agent-tag at-opt">📦 商品运营</span> <span style="color:#a6adc8">分析竞品 → AI 生成 → 违禁词检测</span>'},
+        {delay:1200, html:`
+<p style="color:#cdd6f4;margin:4px 0"><strong>📝 优化后标题：</strong></p>
+<p style="color:#f9e2af;margin:2px 0;padding:4px 8px;background:#313244;border-radius:4px">【UPF50+认证】夏季冰丝防晒袖 男女通用 透气不闷汗 骑行开车防紫外线 多色可选</p>
+<p style="color:#a6e2a1;margin:8px 0">✅ 违禁词检测通过（0个违规词）</p>
+<p style="color:#a6adc8;margin:2px 0">📈 预计点击率提升：+23%</p>
+        `}
+      ]
+    },
+    aftersale: {
+      label:'🔧 处理售后', cls:'slate',
+      steps:[
+        {delay:300, user:'帮我处理待审核的售后申请，注意识别恶意订单'},
+        {delay:600, sys:'🎯 运营总监 → 调度 🔧 售后专员'},
+        {delay:900, html:`
+<table class="demo-table"><thead><tr><th>单号</th><th>类型</th><th>金额</th><th>检测</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td>#8823</td><td>退货退款</td><td>¥29.9</td><td class="good">正常</td><td class="good">✓ 自动通过</td></tr>
+<tr><td>#8827</td><td>仅退款</td><td>¥89.0</td><td class="bad">⚠ 高频退货</td><td class="warn">✗ 拦截升级</td></tr>
+<tr><td>#8831</td><td>换货</td><td>¥45.0</td><td class="good">正常</td><td class="good">✓ 已处理</td></tr>
+</tbody></table>
+        `},
+        {delay:600, html:'<span class="agent-tag at-aftersale">🔧 售后专员</span> <span style="color:#cdd6f4">3单已处理：</span><span class="good">2单自动通过</span>，<span class="warn">1单疑似恶意订单已拦截</span>（近30天退货6次，收货地址异常）'}
+      ]
+    },
+    cross: {
+      label:'🌐 全平台看板', cls:'accent',
+      steps:[
+        {delay:300, user:'展示全平台数据看板'},
+        {delay:500, sys:'🎯 运营总监 → 调度 🌐 跨平台分析师 + 📊 数据分析师'},
+        {delay:900, html:`
+<p style="color:#f9e2af;margin:4px 0">🌐 三平台实时看板 <span style="color:#a6adc8;font-size:11px">2026-05-03 12:35</span></p>
+<table class="demo-table"><thead><tr><th>维度</th><th>🔵拼多多</th><th>🟠淘宝</th><th>⚫抖音</th></tr></thead>
+<tbody>
+<tr><td>今日成交</td><td class="good">¥4,837</td><td>¥3,120</td><td class="good">¥5,892</td></tr>
+<tr><td>差评率</td><td>3.2%</td><td class="good">1.8%</td><td class="bad">4.5%</td></tr>
+<tr><td>退款率</td><td class="good">2.1%</td><td>3.5%</td><td>2.8%</td></tr>
+<tr><td>客服响应</td><td>秒级</td><td>秒级</td><td>秒级</td></tr>
+<tr><td>待处理</td><td>3单</td><td>5单</td><td class="good">0单</td></tr>
+</tbody></table>
+        `},
+        {delay:600, html:'<span style="color:#a6adc8">⏰ 下次自动任务：</span>18:00 口碑日报 + 差评预警'}
+      ]
+    }
+  };
+
+  function addLine(html, cls) {
+    const div = document.createElement('div');
+    div.className = 'demo-line' + (cls ? ' ' + cls : '');
+    div.innerHTML = html;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  async function runScene(key) {
+    if (busy) return;
+    busy = true;
+    const scene = scenes[key];
+    const allBtns = btns.querySelectorAll('button');
+    allBtns.forEach(b => b.disabled = true);
+    body.innerHTML = '';
+    for (const step of scene.steps) {
+      await new Promise(r => setTimeout(r, step.delay));
+      if (step.user) addLine(step.user, 'user');
+      else if (step.sys) addLine(step.sys, 'system');
+      else if (step.html) addLine(step.html);
+    }
+    allBtns.forEach(b => b.disabled = false);
+    busy = false;
+  }
+
+  const order = ['daily','review','select','optimize','aftersale','cross'];
+  for (const k of order) {
+    const s = scenes[k];
+    const btn = document.createElement('button');
+    btn.className = 'demo-btn ' + s.cls;
+    btn.textContent = s.label;
+    btn.onclick = () => runScene(k);
+    btns.appendChild(btn);
+  }
+
+  // 初始提示
+  addLine('<span style="color:#f9e2af">📟 AI 运营团队终端已就绪</span> <span style="color:#a6adc8">— 点击下方按钮触发演示</span>');
+  addLine('<span style="color:#6c7086">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>');
+})();
+</script>
+</body>
+</html>
